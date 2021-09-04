@@ -18,9 +18,17 @@ Function Get-FileMetaData {
         $item = $objFolder.ParseName($file.Name)
         for ($a ; $a -le 400; $a++) {
             $name = $objFolder.GetDetailsOf($file, $a)
-            $r = $objFolder.getDetailsOf($item, $a)
-            if ($r -and $name) {
-                $FileMetaData[$name] =$r.Replace([string][char]8206, '')
+            # Logic here can substantially speed this up when accessing some
+            # Raw file meta data because, I think, some sort of extension is loaded
+            # and unloaded each time.
+            if (-not $metaDataName -or ($name -eq $metaDataName)) {
+                $r = $objFolder.getDetailsOf($item, $a)
+                if ($r -and $name) {
+                    $FileMetaData[$name] =$r.Replace([string][char]8206, '')
+                    if ($metaDataName) {
+                        break
+                    }
+                }
             }
         }
         if ($metaDataName) {
